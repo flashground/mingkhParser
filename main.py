@@ -1,38 +1,15 @@
-from scraping import scraping, get_houses_csv
-from pyfiglet import Figlet
+import sys
 import math
 
-
-from utils import get_html
-
-base_url = 'https://dom.mingkh.ru'
-
-SCREEN_ITEMS = 8
-
-FORMATS_TO_SAVE = ({'name': 'csv', 'ext': '.csv', 'method': 'to_csv', 'active': True},
-                   {'name': 'excel', 'ext': '.xlsx', 'method': 'to_excel', 'active': True},
-                   {'name': 'json', 'ext': '.json', 'method': 'to_json', 'active': False},)
-
-
-def format_to_save():
-    formats = []
-    for index, item in enumerate(FORMATS_TO_SAVE, start=1):
-        if item['active']:
-            formats.append(f"{index} - {item['name']}")
-    while True:
-        print("В какой формате сохранить файл?")
-        print(', '.join(formats))
-        choice = input()
-        if choice.isdigit():
-            choice = int(choice)
-            if choice > 0 and choice <= len(formats):
-                return FORMATS_TO_SAVE[choice-1]
+import settings
+from utils import get_html, welcome_text, format_to_save
+from scraping import scraping, get_houses_csv
 
 
 def show_items(url, num_to_show):
     data = scraping(get_html(url))
     screen_data = []
-    for item in data:
+    for num, item in enumerate(data):
         index = item['index']
         screen_data.append(f"{index} - {item['name']}")
         if index % num_to_show == 0 or index == len(data):
@@ -44,23 +21,25 @@ def show_items(url, num_to_show):
             if not input_num.isdigit():
                 continue
             input_num = int(input_num)
-            if input_num > 0 and input_num <= index:
+            if input_num in range(1, index+1):
                 return next(i for i in data if i["index"] == input_num)
+            elif num+1 == len(data):
+                sys.exit()
             else:
                 continue
 
 
-def main():
-    welcome_text = Figlet(font='banner')
-    print(welcome_text.renderText('HousesParser'))
-    print('Показать список регионов? y/n')
-    x = input()
-    if x.lower() == 'y':
-        region = show_items(base_url, SCREEN_ITEMS)
-        region_url = f"{base_url}{region['url']}"
 
-        locality = show_items(region_url, SCREEN_ITEMS)
-        locality_url = f"{base_url}{locality['url']}houses"
+def main():
+    print(welcome_text(settings.WELCOME_TEXT))
+    print('Показать список регионов? y/n')
+    answer = input()
+    if answer.lower() == 'y':
+        region = show_items(settings.BASE_URL, settings.SCREEN_ITEMS)
+        region_url = f"{settings.BASE_URL}{region['url']}"
+
+        locality = show_items(region_url, settings.SCREEN_ITEMS)
+        locality_url = f"{settings.BASE_URL}{locality['url']}houses"
 
         get_houses_csv(request=get_html(locality_url), url=locality_url,
                        fileformat=format_to_save(), filename=None)

@@ -1,26 +1,63 @@
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from bs4 import BeautifulSoup
-from random import choice
 import json
 import time
+from bs4 import BeautifulSoup
+from random import choice
+from pyfiglet import Figlet
+import settings
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
+def welcome_text(text):
+    """
+    Формирование ASCll псевдографики из заданного текста.
+    """
+    figlet = Figlet(font='banner')
+    return figlet.renderText(text)
+
+
 def str_to_int(string):
+    """
+    Проверка строки на возможность преобразования в число.
+    """
     if not str.isdigit():
         return 0
     return int(string)
 
 
+def format_to_save():
+    """
+    Функция выбора формата для сохранения данных.
+    """
+    formats = []
+    for index, item in enumerate(settings.FORMATS_TO_SAVE, start=1):
+        if item['active']:
+            formats.append(f"{index} - {item['name']}")
+    while True:
+        print("В какой формате сохранить файл?")
+        print(', '.join(formats))
+        answer = input()
+        if answer.isdigit():
+            answer = int(answer)
+            if answer in range(len(formats)+1):
+                return settings.FORMATS_TO_SAVE[answer-1]
+
+
 def json_to_file(filename, data):
+    """
+    Функция сохранения JSON данных в файл.
+    """
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
 def get_html(url, proxy=None):
-    if proxy:
+    """
+    Функция подключения к серверу и сбора html.
+    """
+    if settings.PROXY:
         p = get_proxy()
         proxy = {p['schema']: p['address']}
     x = 0
@@ -35,6 +72,9 @@ def get_html(url, proxy=None):
 
 
 def get_proxy():
+    """
+    Функция парсинга прокси серверов с ресурса https://free-proxy-list.net/ и выдача случайного.
+    """
     html = requests.get('https://free-proxy-list.net/').text
     soup = BeautifulSoup(html, 'lxml')
 
