@@ -1,18 +1,17 @@
 # mingkhParser
 
-Парсер сайта дом.минжкх\
-Экспорт данных по домам населённых пунктов России в файл.
+Parser site dom.minzhkh
+Export of data on the buildings of localities of Russia in the file.
 
-Доступные форматы для сохранения: CSV и EXCEL.
+Available formats for saving: CSV and EXCEL.
 
-Запуск: файл main.py.
-Выбор региона, населенного пункта и формата для сохранения.
+Launch: main.py file. Selection of region, locality and format for saving.
   
 ![](mingkhparse.gif)
 
   
 ## TODO:
-  * рефакторинг,
-  * добавить сохранение данных только по определенной улице,
-  * реализовать интерфейс с помощью Tkinter,
-  * реализовать БД.
+  * refactoring,
+  * add data saving for a specific street only,
+  * implement interface using Tkinter,
+  * implement database.
